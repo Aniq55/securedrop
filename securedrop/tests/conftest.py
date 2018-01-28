@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import gnupg
+import imp
 import logging
 import os
 import psutil
@@ -10,6 +11,7 @@ import signal
 import subprocess
 
 from backports.tempfile import TemporaryDirectory
+from copy import copy
 from os import path
 
 os.environ['SECUREDROP_ENV'] = 'test'  # noqa
@@ -60,7 +62,7 @@ def setUpTearDown():
 
 @pytest.fixture(scope='function')
 def tmp_dir():
-    with TemporaryDirectory as d:
+    with TemporaryDirectory() as d:
         for sub in ['keys', 'store', 'tmp']:
             full_path = path.join(d, sub)
             if not path.exists(full_path):
@@ -70,7 +72,7 @@ def tmp_dir():
 
 @pytest.fixture(scope='function')
 def config(tmp_dir):
-    c = original_config.copy()
+    c = imp.load_module('c', *imp.find_module('config'))
     c.SECUREDROP_DATA_ROOT = tmp_dir
     return c
 
